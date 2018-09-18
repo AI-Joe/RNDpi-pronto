@@ -1,26 +1,58 @@
 import io
-from google.cloud import vision
-from google.cloud.vision import types
 from picamera import PiCamera
 from time import sleep
+import json
+import base64
+import requests
+from google.cloud import storage
+import googleapiclient.discovery
+import datetime
+import time
 
-vision_client = vision.ImageAnnotatorClient()
-
-file_name = '/home/pi/com.jb.pronto/images/cam.jpg'
 camera = PiCamera()
-camera.rotation = -90
-
-camera.start_preview()
-sleep(40)
-camera.capture('/home/pi/com.jb.pronto/images/cam.jpg')
-camera.stop_preview()
+service = googleapiclient.discovery.build('storage', 'v1')
+storage_client = storage.Client()
+bucket = storage_client.get_bucket('restaurants_psu')
 
 
-with io.open(file_name,'rb') as image_file:
-	content = image_file.read()
-	image = types.Image(content=content)
+blob = bucket.blob('waits/bagelcrust')
 
-response = vision_client.face_detection(image=image)
-faces = response.face_annotations
 
-print('There is ' + str(len(faces)) + ' person in the image')
+def takepic():		
+	#camera.start_preview()
+	sleep(15)
+
+	camera.capture('/home/pi/com.jb.pronto/images/cam.jpg')
+	#camera.stop_preview()
+
+def sendpic():
+	data = {}
+	data['name'] = 'bagelcrust'
+	
+	image = open('/home/pi/com.jb.pronto/images/cam.jpg', 'rb')
+	image_read = image.read()
+	image_64_encode = base64.encodestring(image_read)
+	
+	data['img'] = image_64_encode
+	
+	with open('bagelcrust.json', 'w') as outfile:  
+		json.dump(data, outfile)	
+
+	json_data = json.dumps(data)
+
+	blob.upload_from_filename('/home/pi/com.jb.pronto/com.jb.pronto/bagelcrust.json')
+
+	
+	print('successfully uploaded Bagel Crust picture')
+        
+        
+
+
+def main():
+	while datetime.datetime.now().hour >7 or datetime.datetime.now().hour < 1: 
+
+		print(str(datetime.datetime.now().hour))	
+		takepic()	
+		sendpic()
+	
+main()
