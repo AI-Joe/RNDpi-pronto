@@ -53,6 +53,8 @@ def send_pic(data):
 
 '''Main function'''
 def main():
+	setup()
+
 	current_hour = datetime.datetime.now()
 	while current_hour.hour >= 7 or current_hour.hour <= 1:
 		print('The hour is', current_hour.hour)
@@ -62,11 +64,16 @@ def main():
 
 
 '''Sets up RaspberryPi Camera and storage for pictures'''
-camera = PiCamera()
-service = googleapiclient.discovery.build('storage', 'v1')
-storage_client = storage.Client()
-bucket = storage_client.get_bucket('restaurants_psu')
-blob = bucket.blob('waits/bagelcrust')
+def setup():
 
+	camera = PiCamera()
+	service = googleapiclient.discovery.build('storage', 'v1')
+	storage_client = storage.Client()
+	bucket = storage_client.get_bucket('restaurants_psu')
+	blob = bucket.blob('waits/bagelcrust')
+	
+
+	return True
+ 
 '''Calls main function'''
 main()
