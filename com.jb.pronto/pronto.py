@@ -53,9 +53,9 @@ def send_pic(data):
 
 '''Main function'''
 def main():
-	current_hour = datetime.datetime().hour
-	while current_hour >= 7 or current_hour <= 1:
-		print(f'The hour is {current_hour}')
+	current_hour = datetime.datetime.now()
+	while current_hour.hour >= 7 or current_hour.hour <= 1:
+		print('The hour is', current_hour.hour)
 		take_pic()
 		pic_data = open_pic()
 		send_pic(pic_data)
